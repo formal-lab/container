@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "davidanson.vscode-markdownlint",
-        "golang.go"
+        "golang.go",
+        "ms-vscode.makefile-tools",
+        "ms-vscode-remote.vscode-remote-extensionpack"
     ]
 }
