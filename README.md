@@ -2,6 +2,8 @@
 
 System Programming for Linux Containers Training.
 
-## Development Setup
+## Prerequisites
 
-- Operating System: Ubuntu 24.04 (`Linux ubuntu2404 6.8.0-55-generic`)
+### Operating System
+
+Ubuntu 24.04 (`Linux 6.8.0-55-generic`)
