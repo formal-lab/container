@@ -17,6 +17,7 @@ func main() {
 	if os.Args[0] == linuxSelfProc {
 		// make sure the sub process is created after the pid of parent process
 		// is added into the cgroup.procs
+		// there might be a more robust way to ensure the execution order
 		time.Sleep(1 * time.Second)
 
 		// container process
