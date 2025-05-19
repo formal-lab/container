@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path"
 	"strconv"
 	"syscall"
-	"time"
 )
 
 const cgroupV2MemoryHierarchy = "/sys/fs/cgroup/user.slice"
@@ -17,8 +17,11 @@ func main() {
 	if os.Args[0] == linuxSelfProc {
 		// make sure the sub process is created after the pid of parent process
 		// is added into the cgroup.procs
-		// there might be a more robust way to ensure the execution order
-		time.Sleep(1 * time.Second)
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGUSR1)
+
+		// wait for the signal
+		<-sigs
 
 		// container process
 		fmt.Printf("current pid: %d", syscall.Getpid())
@@ -61,7 +64,7 @@ func main() {
 		fmt.Printf("outer pid: %v", cmd.Process.Pid)
 		fmt.Println()
 
-		const memSubsystem = "memorylimit"
+		const memSubsystem = "testmemorylimit"
 		// create a cgroup for the process on the default Hierarchy, which is
 		// created by the OS
 		os.Mkdir(path.Join(cgroupV2MemoryHierarchy, memSubsystem), 0755)
@@ -69,6 +72,11 @@ func main() {
 		os.WriteFile(path.Join(cgroupV2MemoryHierarchy, memSubsystem, "cgroup.procs"), []byte(strconv.Itoa(cmd.Process.Pid)), 0644)
 		// limit the cgroup process memory usage
 		os.WriteFile((path.Join(cgroupV2MemoryHierarchy, memSubsystem, "memory.max")), []byte("100m"), 0644)
+
+		if err := cmd.Process.Signal(syscall.SIGUSR1); err != nil {
+			fmt.Println("failed to send the signal: ", err)
+			return
+		}
 	}
 	cmd.Process.Wait()
 }
